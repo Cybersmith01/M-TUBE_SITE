@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration & Login System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            text-align: center;
+        }
+        .container {
+            width: 300px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: green;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: darkgreen;
+        }
+        .hidden { display: none; }
+        pre {
+            text-align: left;
+            background: #222;
+            color: #fff;
+            padding: 10px;
+            overflow-x: auto;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Registration Form -->
+    <div class="container" id="registerForm">
+        <h2>Register</h2>
+        <input type="text" id="name" placeholder="Full Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="registerUser()">Register</button>
+        <p><a href="#" onclick="showLogin()">Login</a></p>
+    </div>
+
+    <!-- Normal User Login Form -->
+    <div class="container hidden" id="userLogin">
+        <h2>User Login</h2>
+        <input type="email" id="userEmail" placeholder="Email" required>
+        <input type="password" id="userPassword" placeholder="Password" required>
+        <button onclick="userLogin()">Login</button>
+        <p><a href="#" onclick="showAdminLogin()">Admin Login</a></p>
+    </div>
+
+    <!-- Admin Login Form -->
+    <div class="container hidden" id="adminLogin">
+        <h2>Admin Login</h2>
+        <input type="text" id="adminUsername" placeholder="Admin Username" required>
+        <input type="password" id="adminPassword" placeholder="Admin Password" required>
+        <button onclick="adminLogin()">Login</button>
+    </div>
+
+    <!-- User Dashboard -->
+    <div class="container hidden" id="userPanel">
+        <h2>User Dashboard</h2>
+        <pre id="userOutput"></pre>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="container hidden" id="adminPanel">
+        <h2>Registered Users</h2>
+        <pre id="adminOutput"></pre>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        // Register a new user or prompt to login if user exists
+        function registerUser() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+
+            if (!name || !email || !password) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            let userExists = users.some(user => user.email === email);
+
+            if (userExists) {
+                alert("This email is already registered. Please log in.");
+                showLogin();
+            } else {
+                users.push({ name, email, password });
+                localStorage.setItem("users", JSON.stringify(users));
+                alert("Registration successful!");
+                document.getElementById("name").value = "";
+                document.getElementById("email").value = "";
+                document.getElementById("password").value = "";
+            }
+        }
+
+        // Show login form for normal users
+        function showLogin() {
+            document.getElementById("registerForm").classList.add("hidden");
+            document.getElementById("userLogin").classList.remove("hidden");
+        }
+
+        // Show admin login form
+        function showAdminLogin() {
+            document.getElementById("userLogin").classList.add("hidden");
+            document.getElementById("adminLogin").classList.remove("hidden");
+        }
+
+        // Normal user login
+        function userLogin() {
+            let email = document.getElementById("userEmail").value;
+            let password = document.getElementById("userPassword").value;
+
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            let user = users.find(user => user.email === email && user.password === password);
+
+            if (user) {
+                document.getElementById("userLogin").classList.add("hidden");
+                document.getElementById("userPanel").classList.remove("hidden");
+                displayUser(user);
+            } else {
+                alert("Incorrect email or password!");
+            }
+        }
+
+        // Admin login
+        function adminLogin() {
+            let username = document.getElementById("adminUsername").value;
+            let password = document.getElementById("adminPassword").value;
+
+            // Admin credentials
+            if (username === "MAYUTO" && password === "1962") {
+                document.getElementById("adminLogin").classList.add("hidden");
+                document.getElementById("adminPanel").classList.remove("hidden");
+                displayAllUsers();
+            } else {
+                alert("Incorrect admin credentials!");
+            }
+        }
+
+        // Display current user's data
+        function displayUser(user) {
+            document.getElementById("userOutput").textContent = JSON.stringify(user, null, 2);
+        }
+
+        // Display all users in admin panel
+        function displayAllUsers() {
+            let users = JSON.parse(localStorage.getItem("users")) || [];
+            document.getElementById("adminOutput").textContent = JSON.stringify(users, null, 2);
+        }
+
+        // Logout (both admin and user)
+        function logout() {
+            document.getElementById("userPanel").classList.add("hidden");
+            document.getElementById("adminPanel").classList.add("hidden");
+            document.getElementById("registerForm").classList.remove("hidden");
+            document.getElementById("userEmail").value = "";
+            document.getElementById("userPassword").value = "";
+            document.getElementById("adminUsername").value = "";
+            document.getElementById("adminPassword").value = "";
+        }
+    </script>
+
+</body>
+</html>
